@@ -1,0 +1,52 @@
+# <Product - Quote - PDF>
+# Copyright (C) 2013 Florian HENRY <florian.henry@open-concept.pro>
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+#
+# Générique
+#
+
+# Module label 'ModuleXXXName'
+# (where XXX is value of numeric property 'numero' of module)
+Module103026Name = Produit - Propal - PDF
+# Module description 'ModuleXXXDesc'
+# (where XXX is value of numeric property 'numero' of module)
+Module103026Desc = Assemble les documents PDF produits selectionnés au PDF de Proposition Commerciale
+
+#
+# Page d'administration
+#
+PropalMergePdfProductSetup = Configuration du module Produit - Propal - PDF
+Settings = Réglages
+PropalMergePdfProductSetupPage = Page de réglage de Produit - Propal - PDF
+PropalMergePdfProductNothingToSet = Il n'y a pas de paramétrage spécifique a ce module. Aller dans produit->document, choisissez le PDF à ajouté a vos proposition commerciales de modéle azur_plus
+
+#
+# Page À propos
+#
+About = À propos
+PropalMergePdfProductAbout = À propos de Produit - Propal - PDF
+PropalMergePdfProductAboutPage = Page à propos de Produit - Propal - PDF
+
+#
+#Product file page
+#
+PropalMergePdfProductActualFile=Le fichier ajouté a la fin de la Proposition PDF Azur_Plus est
+PropalMergePdfProductChooseFile=Selection un fichier PDF (ou vide pour ne plus en avoir)
+
+#
+#PDF
+#
+PropalMergePdfProductDocModelAzurDescription=Modèle de propositions commerciales complet (logo...) avec document PDF produit selectionné ajouté à la fin
