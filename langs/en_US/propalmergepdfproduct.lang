@@ -43,8 +43,8 @@ PropalMergePdfProductAboutPage = Product - Quote - PDF about page
 #
 #Product file page
 #
-PropalMergePdfProductActualFile=Actual file use to add into PDF Azur_plus is 
-PropalMergePdfProductChooseFile=Select PDF file (or blanck to remove the selected one)
+PropalMergePdfProductActualFile=Files use to add into PDF Azur_plus are/is 
+PropalMergePdfProductChooseFile=Select PDF files
 
 #
 #PDF

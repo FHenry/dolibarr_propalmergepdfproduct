@@ -48,6 +48,8 @@ class Propalmergepdfproduct extends CommonObject
 	var $datec='';
 	var $tms='';
 	var $import_key;
+	
+	var $lines=array();
 
     
 
@@ -239,17 +241,23 @@ class Propalmergepdfproduct extends CommonObject
     	{
     		if ($this->db->num_rows($resql))
     		{
-    			$obj = $this->db->fetch_object($resql);
+    			while($obj = $this->db->fetch_object($resql)) {
     
-    			$this->id    = $obj->rowid;
-    
-    			$this->fk_product = $obj->fk_product;
-    			$this->file_name = $obj->file_name;
-    			$this->fk_user_author = $obj->fk_user_author;
-    			$this->fk_user_mod = $obj->fk_user_mod;
-    			$this->datec = $this->db->jdate($obj->datec);
-    			$this->tms = $this->db->jdate($obj->tms);
-    			$this->import_key = $obj->import_key;
+    				$line = new PropalmergepdfproductLine();
+    				
+	    			$line->id    = $obj->rowid;
+	    
+	    			$line->fk_product = $obj->fk_product;
+	    			$line->file_name = $obj->file_name;
+	    			$line->fk_user_author = $obj->fk_user_author;
+	    			$line->fk_user_mod = $obj->fk_user_mod;
+	    			$line->datec = $this->db->jdate($obj->datec);
+	    			$line->tms = $this->db->jdate($obj->tms);
+	    			$line->import_key = $obj->import_key;
+	    			
+	    			$this->lines[$obj->file_name]=$line;
+    			
+    			}
     
     
     		}
@@ -397,6 +405,65 @@ class Propalmergepdfproduct extends CommonObject
 			return 1;
 		}
 	}
+	
+	/**
+	 *  Delete object in database
+	 *
+	 *	@param  User	$user        User that deletes
+	 *	@param  int		$product_id	 product_id
+	 *  @param  int		$notrigger	 0=launch triggers after, 1=disable triggers
+	 *  @return	int					 <0 if KO, >0 if OK
+	 */
+	function delete_by_product($user, $product_id, $notrigger=0)
+	{
+		global $conf, $langs;
+		$error=0;
+	
+		$this->db->begin();
+	
+		if (! $error)
+		{
+			if (! $notrigger)
+			{
+				// Uncomment this and change MYOBJECT to your own tag if you
+				// want this action calls a trigger.
+	
+				//// Call triggers
+				//include_once DOL_DOCUMENT_ROOT . '/core/class/interfaces.class.php';
+				//$interface=new Interfaces($this->db);
+				//$result=$interface->run_triggers('MYOBJECT_DELETE',$this,$user,$langs,$conf);
+				//if ($result < 0) { $error++; $this->errors=$interface->errors; }
+				//// End call triggers
+			}
+		}
+	
+		if (! $error)
+		{
+			$sql = "DELETE FROM ".MAIN_DB_PREFIX."propal_merge_pdf_product";
+			$sql.= " WHERE fk_product=".$product_id;
+	
+			dol_syslog(get_class($this)."::delete sql=".$sql);
+			$resql = $this->db->query($sql);
+			if (! $resql) { $error++; $this->errors[]="Error ".$this->db->lasterror(); }
+		}
+	
+		// Commit or rollback
+		if ($error)
+		{
+			foreach($this->errors as $errmsg)
+			{
+				dol_syslog(get_class($this)."::delete ".$errmsg, LOG_ERR);
+				$this->error.=($this->error?', '.$errmsg:$errmsg);
+			}
+			$this->db->rollback();
+			return -1*$error;
+		}
+		else
+		{
+			$this->db->commit();
+			return 1;
+		}
+	}
 
 
 
@@ -476,4 +543,20 @@ class Propalmergepdfproduct extends CommonObject
 	}
 
 }
-?>
+
+class PropalmergepdfproductLine{
+	var $id;
+	
+	var $fk_product;
+	var $file_name;
+	var $fk_user_author;
+	var $fk_user_mod;
+	var $datec='';
+	var $tms='';
+	var $import_key;
+
+	function __construct() {
+		return 1;
+	}
+
+}

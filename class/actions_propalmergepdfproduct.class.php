@@ -72,7 +72,7 @@ class ActionsPropalMergePdfProduct {
 			dol_include_once ( '/propalmergepdfproduct/class/propalmergepdfproduct.class.php' );
 			
 			$filetomerge = new Propalmergepdfproduct ( $this->db );
-			$filetomerge->fetch_by_product ( $object->id );
+			$result = $filetomerge->fetch_by_product ( $object->id );
 			
 			$form = new Form ( $db );
 			
@@ -87,8 +87,8 @@ class ActionsPropalMergePdfProduct {
 			if (count ( $filearray ) > 0) {
 				$html = '<BR><BR>';
 				// Actual file to merge is :
-				if (! empty ( $filetomerge->id )) {
-					$html = $langs->trans ( 'PropalMergePdfProductActualFile' ) . ':<b>' . $filetomerge->file_name . '</b>';
+				if (count($filetomerge->lines)>0) {
+					$html = $langs->trans ( 'PropalMergePdfProductActualFile' );
 				}
 				
 				// $html .= '<form name=\"filemerge\" action=\"' . dol_buildpath('/propalmergepdfproduct/propalmergepdfproduct.php',1) . '\"
@@ -96,21 +96,49 @@ class ActionsPropalMergePdfProduct {
 				$html .= '<form name=\"filemerge\" action=\"' . DOL_URL_ROOT . '/product/document.php?id=' . $object->id . '\" method=\"post\">';
 				$html .= '<input type=\"hidden\" name=\"token\" value=\"' . $_SESSION ['newtoken'] . '\">';
 				$html .= '<input type=\"hidden\" name=\"action\" value=\"filemerge\">';
-				$html .= $langs->trans ( 'PropalMergePdfProductChooseFile' );
-				$html .= '<select name=\"filetoadd\" id=\"filetoadd\" class=\"flat\">';
-				$html .= '<option value=\"\"></option>';
-				foreach ( $filearray as $filetoadd ) {
-					if ($ext = pathinfo ( $filetoadd ['name'], PATHINFO_EXTENSION ) == 'pdf') {
-						
-						$selected = '';
-						if ($filetomerge->file_name == $filetoadd ['name'])
-							$selected = ' selected=\"selected\" ';
-						
-						$html .= '<option value=\"' . $filetoadd ['name'] . '\" ' . $selected . '>' . $filetoadd ['name'] . '</option>';
-					}
+				if (count($filetomerge->lines)==0) {
+					$html .= $langs->trans ( 'PropalMergePdfProductChooseFile' );
 				}
-				$html .= '</select>';
-				$html .= '<input type=\"submit\" class=\"button\" value=\"' . $langs->trans ( 'Save' ) . '\">';
+				
+				$html .= '<table class=\"noborder\">';
+				
+				
+				$style='impair';
+				foreach ( $filearray as $filetoadd ) {
+
+					if ($ext = pathinfo ( $filetoadd ['name'], PATHINFO_EXTENSION ) == 'pdf') {
+				
+						if ($style=='pair') {
+							$style='impair';
+						}
+						else {
+							$style='pair';
+						}
+						
+						
+						$checked = '';
+						/*foreach($filetomerge->lines as $line) {
+							if ($line->filename==$filetoadd ['name']) {
+								$checked =' checked=\"checked\" ';
+							}
+						}*/
+						if (array_key_exists($filetoadd ['name'],$filetomerge->lines))
+							$checked =' checked=\"checked\" ';
+						
+						$html .= '<tr class=\"'.$style.'\"><td>';
+						
+						$html .= '<input type=\"checkbox\" '.$checked.' name=\"filetoadd[]\" id=\"filetoadd\" value=\"'.$filetoadd ['name'].'\">'.$filetoadd ['name'].'</input>';
+						$html .= '</td></tr>';
+
+					}
+					
+					
+				}	
+				$html .= '<tr><td><input type=\"submit\" class=\"button\" value=\"' . $langs->trans ( 'Save' ) . '\"></td></tr>';
+				$html .= '</table>';		
+				
+			
+				
 				$html .= '</form>';
 				
 				print '<script type="text/javascript">jQuery(document).ready(function () {jQuery(function() {jQuery(".fiche").append("' . $html . '");});});</script>';
@@ -137,27 +165,22 @@ class ActionsPropalMergePdfProduct {
 			
 			dol_include_once ( '/propalmergepdfproduct/class/propalmergepdfproduct.class.php' );
 			
-			$filetomerge_file = GETPOST ( 'filetoadd', 'alpha' );
+			$filetomerge_file_array = GETPOST ( 'filetoadd');
 			
+			$filetomerge_file_array=GETPOST('filetoadd');
+			
+			//Delete all file already associated
 			$filetomerge = new Propalmergepdfproduct ( $this->db );
-			$filetomerge->fetch_by_product ( $object->id );
+			$filetomerge->delete_by_product ($user, $object->id);
 			
-			// If we do not find a row for this product
-			if (empty ( $filetomerge->id )) {
-				// We create it
-				$filetomerge->fk_product = $object->id;
-				$filetomerge->file_name = $filetomerge_file;
-				$filetomerge->create ( $user );
-			} elseif (! empty ( $filetomerge_file )) {
-				// If file to merge is specified and the product already exists we update file
-				$filetomerge->fk_product = $object->id;
-				$filetomerge->file_name = $filetomerge_file;
-				$filetomerge->update ( $user );
-			} else {
-				// It mean the user do not want anymore the file to add
-				// We delete it
-				$filetomerge->delete ( $user );
-			}
+			//for each file checked add it to the product
+			if (is_array($filetomerge_file_array)) {
+				foreach ($filetomerge_file_array as $filetomerge_file) {
+						$filetomerge->fk_product = $object->id;
+						$filetomerge->file_name = $filetomerge_file;
+						$filetomerge->create ( $user );
+					} 
+				}
 		}
 		return 0;
 	}
