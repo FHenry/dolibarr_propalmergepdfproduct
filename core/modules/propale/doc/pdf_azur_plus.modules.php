@@ -472,11 +472,14 @@ class pdf_azur_plus extends ModelePDFPropales {
 				// Add PDF ask to merge
 				dol_include_once ( '/propalmergepdfproduct/class/propalmergepdfproduct.class.php' );
 				
+				$already_merged=array();
 				foreach ( $object->lines as $line ) {
-					if (! empty ( $line->fk_product )) {
+					if (! empty ( $line->fk_product ) && !(in_array($line->fk_product, $already_merged))) {
 						// Find the desire PDF
 						$filetomerge = new Propalmergepdfproduct ( $this->db );
 						$filetomerge->fetch_by_product ( $line->fk_product );
+						
+						$already_merged[]=$line->fk_product;
 						
 						// If PDF is selected and file is not empty
 						if (count ( $filetomerge->lines ) > 0) {
@@ -493,6 +496,9 @@ class pdf_azur_plus extends ModelePDFPropales {
 									dol_syslog ( get_class ( $this ) . ':: $upload_dir=' . $filetomerge_dir, LOG_DEBUG );
 									// If file really exists
 									if (is_file ( $infile )) {
+										
+										
+										
 										$count = $pdf->setSourceFile ( $infile );
 										// import all page
 										for($i = 1; $i <= $count; $i ++) {
