@@ -2,6 +2,9 @@
 English Dolibarr Propal PDF product Merge
 --------------------------------------------------------------
 
+***** ChangeLog for 1.3 to 1.2
+	- New : Can manage multilangs feature
+
 ***** ChangeLog for 1.2 to 1.1
 	- Fix : Avoid merge PDF for a product that have been alreday merged (if product is added more than one time into propal)
 

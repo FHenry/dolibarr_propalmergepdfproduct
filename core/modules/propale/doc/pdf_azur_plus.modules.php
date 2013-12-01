@@ -477,7 +477,13 @@ class pdf_azur_plus extends ModelePDFPropales {
 					if (! empty ( $line->fk_product ) && !(in_array($line->fk_product, $already_merged))) {
 						// Find the desire PDF
 						$filetomerge = new Propalmergepdfproduct ( $this->db );
-						$filetomerge->fetch_by_product ( $line->fk_product );
+						
+						if ($conf->global->MAIN_MULTILANGS) {
+							$filetomerge->fetch_by_product ( $line->fk_product, $outputlangs->defaultlang);
+						} else {
+							$filetomerge->fetch_by_product ( $line->fk_product );
+						}
+						
 						
 						$already_merged[]=$line->fk_product;
 						
