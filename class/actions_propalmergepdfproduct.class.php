@@ -23,10 +23,10 @@
  */
 
 /**
- * \class ActionsPropalMergePdfProduct
- * \brief Class to manage Mailchimp
+ * Class to manage Mailchimp
  */
-class ActionsPropalMergePdfProduct {
+class ActionsPropalMergePdfProduct
+{
 	var $db;
 	var $error;
 	var $errors = array ();
@@ -52,8 +52,8 @@ class ActionsPropalMergePdfProduct {
 	 * @param object $hookmanager class instance
 	 * @return void
 	 */
-	function formObjectOptions($parameters, &$object, &$action, $hookmanager) {
-
+	function formObjectOptions($parameters, &$object, &$action, $hookmanager)
+	{
 		global $langs, $conf, $user;
 		
 		$langs->load ( 'propalmergepdfproduct@propalmergepdfproduct' );
@@ -92,11 +92,12 @@ class ActionsPropalMergePdfProduct {
 			$filearray = dol_dir_list ( $upload_dir, "files", 0, '', '\.meta$', 'name', SORT_ASC, 1 );
 			
 			// For each file build select list with PDF extention
-			if (count ( $filearray ) > 0) {
-				$html = '<BR><BR>';
+			if (count ( $filearray ) > 0)
+			{
+				$html = '<br>';
 				// Actual file to merge is :
 				if (count($filetomerge->lines)>0) {
-					$html = $langs->trans ( 'PropalMergePdfProductActualFile' );
+					$html .= $langs->trans ( 'PropalMergePdfProductActualFile' );
 				}
 				
 
@@ -114,7 +115,7 @@ class ActionsPropalMergePdfProduct {
 					
 					$langs->load("languages");
 					
-					$html .= '<tr><td>';
+					$html .= '<tr class=\"liste_titre\"><td>';
 					
 					$delauft_lang=(empty($lang_id))?$langs->getDefaultLang():$lang_id;
 					
@@ -159,7 +160,8 @@ class ActionsPropalMergePdfProduct {
 				$style='impair';
 				foreach ( $filearray as $filetoadd ) {
 
-					if ($ext = pathinfo ( $filetoadd ['name'], PATHINFO_EXTENSION ) == 'pdf') {
+					if ($ext = pathinfo( $filetoadd ['name'], PATHINFO_EXTENSION ) == 'pdf')
+					{
 				
 						if ($style=='pair') {
 							$style='impair';
@@ -174,7 +176,7 @@ class ActionsPropalMergePdfProduct {
 						
 						if ($conf->global->MAIN_MULTILANGS) {
 							if (array_key_exists($filetoadd ['name'].'_'.$delauft_lang,$filetomerge->lines)) {
-								$filename=$filetoadd ['name'].' '.$langs->trans('Language_'.$delauft_lang);
+								$filename=$filetoadd ['name'].' - '.$langs->trans('Language_'.$delauft_lang);
 								$checked =' checked=\"checked\" ';
 							}
 								
@@ -218,14 +220,14 @@ class ActionsPropalMergePdfProduct {
 	 * @param object $hookmanager class instance
 	 * @return void
 	 */
-	function doActions($parameters = false, &$object, &$action = '', $hookmanager) {
-
+	function doActions($parameters = false, &$object, &$action = '', $hookmanager)
+	{
 		dol_syslog ( get_class ( $this ) . ':: doActions', LOG_DEBUG );
 		
 		global $langs, $conf, $user;
 		
-		if ($object->table_element == 'product' && ! empty ( $object->id ) && $action == 'filemerge') {
-			
+		if ($object->table_element == 'product' && ! empty ( $object->id ) && $action == 'filemerge')
+		{
 			dol_include_once ( '/propalmergepdfproduct/class/propalmergepdfproduct.class.php' );
 			
 			$filetomerge_file_array = GETPOST ( 'filetoadd');
@@ -267,15 +269,122 @@ class ActionsPropalMergePdfProduct {
 	}
 
 	/**
-	 * Return action of hook
+     * Execute action
 	 *
-	 * @param array $parameters
-	 * @param object $object
-	 * @param string $action
-	 * @param object $hookmanager class instance
-	 * @return void
+     * @param	array	$parameters		Array of parameters
+     * @param   Object	&$pdfhandler   	PDF builder handler
+     * @param   string	$action     	'add', 'update', 'view'
+     * @return  int 		        	<0 if KO,
+     *                          		=0 if OK but we want to process standard actions too,
+     *  	                            >0 if OK and we want to replace standard actions.
 	 */
-	function afterPDFCreation($parameters = false, &$object, &$action = '', $hookmanager) {
+    function afterPDFCreation($parameters,&$pdfhandler,&$action)
+    {
+        global $langs,$conf;
+        global $hookmanager;
 
+		$outputlangs = $parameters['outputlangs'];
+
+        $ret=0; $deltemp=array();
+        dol_syslog(get_class($this).'::executeHooks action='.$action);
+
+        $object = $parameters['object'];
+
+		// Add PDF ask to merge
+		dol_include_once ( '/propalmergepdfproduct/class/propalmergepdfproduct.class.php' );
+
+		$already_merged=array();
+		foreach ($object->lines as $line)
+		{
+			if (! empty($line->fk_product ) && ! (in_array($line->fk_product, $already_merged)))
+			{
+				// Find the desire PDF
+				$filetomerge = new Propalmergepdfproduct($this->db);
+
+				if ($conf->global->MAIN_MULTILANGS) {
+					$filetomerge->fetch_by_product($line->fk_product, $outputlangs->defaultlang);
+				} else {
+					$filetomerge->fetch_by_product($line->fk_product);
 	}
+
+				$already_merged[]=$line->fk_product;
+
+				// If PDF is selected and file is not empty
+				if (count($filetomerge->lines) > 0)
+				{
+					foreach ($filetomerge->lines as $linefile)
+					{
+						if (! empty($linefile->id) && ! empty ($linefile->file_name))
+						{
+							if (! empty($conf->product->enabled))
+								$filetomerge_dir = $conf->product->multidir_output[$conf->entity] . '/' . dol_sanitizeFileName ($line->product_ref);
+							elseif (! empty($conf->service->enabled))
+								$filetomerge_dir = $conf->service->multidir_output[$conf->entity] . '/' . dol_sanitizeFileName ($line->product_ref);
+
+							dol_syslog(get_class($this).':: upload_dir=' . $filetomerge_dir, LOG_DEBUG);
+
+							$filetoconcat1 = array($parameters['file']);
+							$filetoconcat2 = array($filetomerge_dir . '/' . $linefile->file_name);
+
+							$filetoconcat = array_merge($filetoconcat1, $filetoconcat2);
+
+						    // Create empty PDF
+			        		$pdf=pdf_getInstance();
+			        		if (class_exists('TCPDF'))
+			        		{
+			        			$pdf->setPrintHeader(false);
+			        			$pdf->setPrintFooter(false);
+			        		}
+			        		$pdf->SetFont(pdf_getPDFFont($outputlangs));
+
+			        		if ($conf->global->MAIN_DISABLE_PDF_COMPRESSION) $pdf->SetCompression(false);
+			        		//$pdf->SetCompression(false);
+
+			        		$pagecount = $this->concat($pdf, $filetoconcat);
+
+			        		if ($pagecount)
+			        		{
+			        			$pdf->Output($filetoconcat1[0],'F');
+			        			if (! empty($conf->global->MAIN_UMASK))
+			        			{
+			        				@chmod($file, octdec($conf->global->MAIN_UMASK));
+			        			}
+			        			if (! empty($deltemp))
+			        			{
+			        				// Delete temp files
+			        				foreach($deltemp as $dirtemp)
+			        				{
+			        					dol_delete_dir_recursive($dirtemp);
+			        				}
+			        			}
+			        		}
+						}
+					}
+				}
+			}
+		}
+	}
+
+	/**
+	 *
+	 * @param unknown_type $pdf
+	 * @param unknown_type $files
+	 */
+	function concat(&$pdf,$files)
+	{
+		foreach($files as $file)
+		{
+			$pagecount = $pdf->setSourceFile($file);
+			for ($i = 1; $i <= $pagecount; $i++)
+			{
+				$tplidx = $pdf->ImportPage($i);
+				$s = $pdf->getTemplatesize($tplidx);
+				$pdf->AddPage($s['h'] > $s['w'] ? 'P' : 'L');
+				$pdf->useTemplate($tplidx);
+			}
+		}
+
+		return $pagecount;
+	}
+
 }

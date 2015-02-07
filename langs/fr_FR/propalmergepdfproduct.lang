@@ -43,8 +43,8 @@ PropalMergePdfProductAboutPage = Page à propos de Produit - Propal - PDF
 #
 #Product file page
 #
-PropalMergePdfProductActualFile=Le(s) fichiers ajouté(s) à la fin de la Proposition PDF Azur_Plus sont
-PropalMergePdfProductChooseFile=Selection un fichier PDF
+PropalMergePdfProductActualFile=Le(s) fichiers ajouté(s) à la fin des propositions commerciales
+PropalMergePdfProductChooseFile=Selection le ou les fichiers PDF qui seront inclut dans les propales qui contiennent ce produit
 
 #
 #PDF

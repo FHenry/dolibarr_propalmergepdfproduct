@@ -61,7 +61,7 @@ class modPropalMergePdfProduct extends DolibarrModules
         // (where XXX is value of numeric property 'numero' of module)
         $this->description = "Merge Propal PDF with specified product PDF";
         // Possible values for version are: 'development', 'experimental' or version
-        $this->version = '1.3';
+        $this->version = '1.4';
         // Key used in llx_const table to save module status enabled/disabled
         // (where MYMODULE is value of property name of module in uppercase)
         $this->const_name = 'MAIN_MODULE_' . strtoupper($this->name);
@@ -115,7 +115,7 @@ class modPropalMergePdfProduct extends DolibarrModules
         // Minimum version of PHP required by module
         $this->phpmin = array(5, 3);
         // Minimum version of Dolibarr required by module
-        $this->need_dolibarr_version = array(3, 4);
+        $this->need_dolibarr_version = array(3, 6);
         $this->langfiles = array("propalmergepdfproduct@propalmergepdfproduct"); // langfiles@propalmergepdfproduct
         // Constants
         // List of particular constants to add when module is enabled
