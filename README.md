@@ -12,7 +12,7 @@ See COPYING for more information.
 INSTALL
 -------
 
-To install this module, Dolibarr (v >= 3.4) have to be already installed and configured on your server.
+To install this module, Dolibarr (v >= 3.6) have to be already installed and configured on your server.
 
 - In your Dolibarr installation directory: edit the htdocs/conf/conf.php file
 - Find the following lines:
@@ -41,7 +41,7 @@ for example on UNIX systems:
 
 	$dolibarr_main_document_root = '/var/www/Dolibarr/htdocs';
 
-	$dolibarr_main_url_root_alt = 'http://localhost/Dolibarr/htdocs/custom';
+	$dolibarr_main_url_root_alt = '/custom';
 
 	$dolibarr_main_document_root_alt = '/var/www/Dolibarr/htdocs/custom';
 
@@ -51,7 +51,7 @@ for example on a Windows system:
 
 	$dolibarr_main_document_root = 'C:/My Web Sites/Dolibarr/htdocs';
 
-	$dolibarr_main_url_root_alt = 'http://localhost/Dolibarr/htdocs/custom';
+	$dolibarr_main_url_root_alt = '/custom';
 
 	$dolibarr_main_document_root_alt = 'C:/My Web Sites/Dolibarr/htdocs/custom';
 
