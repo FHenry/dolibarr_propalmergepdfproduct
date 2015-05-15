@@ -292,6 +292,7 @@ class ActionsPropalMergePdfProduct
 
 		// Add PDF ask to merge
 		dol_include_once ( '/propalmergepdfproduct/class/propalmergepdfproduct.class.php' );
+		dol_include_once ( '/product/class/product.class.php' );
 
 		$already_merged=array();
 		foreach ($object->lines as $line)
@@ -305,9 +306,18 @@ class ActionsPropalMergePdfProduct
 					$filetomerge->fetch_by_product($line->fk_product, $outputlangs->defaultlang);
 				} else {
 					$filetomerge->fetch_by_product($line->fk_product);
-	}
+				}
 
 				$already_merged[]=$line->fk_product;
+				
+				$product = new Product($this->db);
+				$product->fetch($line->fk_product);
+
+				if ($product->entity!=$conf->entity) {
+					$entity_product_file=$product->entity;
+				} else {
+					$entity_product_file=$conf->entity;
+				}
 
 				// If PDF is selected and file is not empty
 				if (count($filetomerge->lines) > 0)
@@ -316,10 +326,13 @@ class ActionsPropalMergePdfProduct
 					{
 						if (! empty($linefile->id) && ! empty ($linefile->file_name))
 						{
+							
+							
+							
 							if (! empty($conf->product->enabled))
-								$filetomerge_dir = $conf->product->multidir_output[$conf->entity] . '/' . dol_sanitizeFileName ($line->product_ref);
+								$filetomerge_dir = $conf->product->multidir_output[$entity_product_file] . '/' . dol_sanitizeFileName ($line->product_ref);
 							elseif (! empty($conf->service->enabled))
-								$filetomerge_dir = $conf->service->multidir_output[$conf->entity] . '/' . dol_sanitizeFileName ($line->product_ref);
+								$filetomerge_dir = $conf->service->multidir_output[$entity_product_file] . '/' . dol_sanitizeFileName ($line->product_ref);
 
 							dol_syslog(get_class($this).':: upload_dir=' . $filetomerge_dir, LOG_DEBUG);
 
