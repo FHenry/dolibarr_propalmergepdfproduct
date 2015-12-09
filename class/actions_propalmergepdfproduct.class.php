@@ -326,9 +326,6 @@ class ActionsPropalMergePdfProduct
 					{
 						if (! empty($linefile->id) && ! empty ($linefile->file_name))
 						{
-							
-							
-							
 							if (! empty($conf->product->enabled))
 								$filetomerge_dir = $conf->product->multidir_output[$entity_product_file] . '/' . dol_sanitizeFileName ($line->product_ref);
 							elseif (! empty($conf->service->enabled))
